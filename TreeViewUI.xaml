@@ -1,0 +1,98 @@
+<Window x:Class="UfoObjectTree.UfoViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+        xmlns:local="clr-namespace:UfoObjectTree"
+        xmlns:entity="clr-namespace:UfoObjectTree.Entities"
+        mc:Ignorable="d"
+        xmlns:vm="clr-namespace:UfoObjectTree.ViewModels"
+        Title="MainWindow" Height="550" Width="625">
+    <Window.Resources>
+        <vm:UfoViewerViewModel x:Key="datacontext"  />
+        <SolidColorBrush x:Key="TreeBackground" Color="#3c4447"/>
+        <SolidColorBrush x:Key="IconColor" Color="#E3C72E"/>
+        <SolidColorBrush x:Key="ClassColor" Color="#ADADAD"/>
+        <SolidColorBrush x:Key="EnumColor" Color="#3c88b5"/>
+        <SolidColorBrush x:Key="EnumIcon" Color="#E4ABA7"/>
+        <SolidColorBrush x:Key="FieldIcon" Color="#886D7B8A"/>
+        <SolidColorBrush x:Key="FieldColor" Color="#9FAE8D"/>
+        <DataTemplate DataType="{x:Type entity:UfoEnum}">
+            <StackPanel Orientation="Horizontal">
+                <fa:FontAwesome Icon="Minus" Foreground="{StaticResource EnumIcon}" VerticalAlignment="Center" Margin="5 0"/>            
+            <TextBlock ToolTip="{Binding Comment}" Foreground="{StaticResource EnumColor}">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} ({1})">
+                        <Binding Path="Name"/>
+                        <Binding Path="Value"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type entity:UfoField}">
+            <StackPanel Orientation="Horizontal">
+                <fa:FontAwesome Icon="{Binding Icon}" Foreground="{StaticResource FieldIcon}"  VerticalAlignment="Center" Margin="5 0" FontSize="14"/>
+                <TextBlock ToolTip="{Binding Comment}" Foreground="{StaticResource FieldColor}">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} ({1})">
+                            <Binding Path="Name"/>
+                            <Binding Path="Type"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid DataContext="{StaticResource datacontext}" IsSharedSizeScope="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>            
+            <ColumnDefinition></ColumnDefinition>            
+        </Grid.ColumnDefinitions>
+        <TextBlock HorizontalAlignment="Center" Text="UFO Object Viewer" FontSize="22" Grid.ColumnSpan="2" FontFamily="Segoe UI" FontWeight="Thin"/>
+        <TextBox Grid.Row="1" Height="25" VerticalContentAlignment="Center" Margin="10 0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+        <Grid Grid.Row="2" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TreeView Grid.Row="1" ItemsSource="{Binding UfoTypeCollection}" Margin="0 4" Background="{StaticResource TreeBackground}">
+                <TreeView.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#44AAAAAA" />
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#44000000" />                    
+                </TreeView.Resources>
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding UfoFields}">
+                        <StackPanel Orientation="Horizontal">
+                            <fa:FontAwesome Icon="TencentWeibo" Margin="5,2" Foreground="{StaticResource IconColor}" FontSize="14"/>
+                            <TextBlock Foreground="{StaticResource ClassColor}" Text="{Binding FullName}" FontWeight="Bold"/>
+                        </StackPanel>
+                        <HierarchicalDataTemplate.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding LinkedType.UfoFields}">
+                                <ContentPresenter Content="{Binding}"/>
+                            </HierarchicalDataTemplate>
+                        </HierarchicalDataTemplate.ItemTemplate>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="TreeViewItem.IsExpanded" Value="True"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
+            <GridSplitter Width="4" Grid.Column="1" HorizontalAlignment="Left" ResizeBehavior="PreviousAndCurrent" />
+            <TextBox Margin="4" Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Text="{Binding UfoJson}"/>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right" Margin="10,0">
+            <Button Content="Close" Width="70" Height="25"/>
+        </StackPanel>
+    </Grid>
+</Window>
